@@ -1,0 +1,80 @@
+experiment_name: "Forgotten Users"
+description: "Experiment for analyzing forgotten users in recommender systems."
+
+evaluation:
+  k: 10
+  model_seeds: [42]
+  split_seeds: [11, 200, 69, 20, 13, 7, 3, 101, 300, 351, 999, 123, 456, 789, 321, 654, 987, 111, 232, 334]
+
+datasets:
+  #MovieLens1M:
+   # cold_start: 20
+   # preprocessing:
+   #   - type: "MinRating"
+   #     params:
+   #       min_rating: 3
+  #    - type: "MinItemsPerUser"
+  #      params:
+  #        min_items_per_user: 5
+  #    - type: "MinUsersPerItem"
+  #      params:
+  #        min_users_per_item: 5
+  #    - type: "Deduplicate"
+
+  #PrimePantry:
+  #  cold_start: 5
+  #  preprocessing:
+  #    - type: "MinRating"
+  #      params:
+  #        min_rating: 3
+  #    - type: "MinItemsPerUser"
+  #      params:
+  #        min_items_per_user: 5
+  #    - type: "MinUsersPerItem"
+  #      params:
+  #        min_users_per_item: 5
+  #    - type: "Deduplicate"
+
+  #CiteULike:
+   #  cold_start: 10
+  #   preprocessing:
+  #     - type: "MinItemsPerUser"
+   #      params:
+  #         min_items_per_user: 5
+  #     - type: "MinUsersPerItem"
+  #       params:
+  #         min_users_per_item: 5
+  #     - type: "Deduplicate"
+
+  Netflix:
+    cold_start: 20
+    preprocessing:
+      - type: "MinRating"
+        params:
+          min_rating: 3
+      - type: "MinItemsPerUser"
+        params:
+          min_items_per_user: 20
+      - type: "MinUsersPerItem"
+        params:
+          min_users_per_item: 5
+      - type: "Deduplicate"
+
+algorithms:
+  Popularity: {}
+
+  ItemKNN:
+    K: [50, 100, 150, 200, 250, 300, 400, 450, 500, 550, 600]
+    similarity: ['cosine', 'conditional_probability']
+    
+  EASE:
+    l2: [0.01, 0.1, 1, 10, 100, 1000]
+    alpha: [0, 1, 2]
+
+  StrongGenSVD:
+    num_components: [20, 50, 100, 150, 200, 250, 300]
+    seed: [42]
+
+
+
+  

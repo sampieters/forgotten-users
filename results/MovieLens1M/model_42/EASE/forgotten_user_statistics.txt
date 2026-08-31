@@ -1,0 +1,15 @@
+Dataset: MovieLens1M
+Model: EASE
+Seed: 42
+
+Forgotten users (non-cold-start): 43/1208 (3.56% of all users)
+
+Cold-start users: 132/1208 (10.93% of all users)
+Cold-start forgotten: 13/132 (9.85% of cold-start users)
+
+Non-cold-start users: 1076/1208 (89.07% of all users)
+Non-cold-start forgotten: 43/1076 (4.00% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 0/1208 (0.00% of all users)
+Cold-start zero-hit users: 0/132 (0.00% of cold-start users)
+Non-cold-start zero-hit users: 0/1076 (0.00% of non-cold-start users)

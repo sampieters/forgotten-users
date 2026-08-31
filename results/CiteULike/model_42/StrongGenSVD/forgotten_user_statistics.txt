@@ -1,0 +1,15 @@
+Dataset: CiteULike
+Model: StrongGenSVD
+Seed: 42
+
+Forgotten users (non-cold-start): 21/1110 (1.89% of all users)
+
+Cold-start users: 362/1110 (32.61% of all users)
+Cold-start forgotten: 12/362 (3.31% of cold-start users)
+
+Non-cold-start users: 748/1110 (67.39% of all users)
+Non-cold-start forgotten: 21/748 (2.81% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 122/1110 (10.99% of all users)
+Cold-start zero-hit users: 70/362 (19.34% of cold-start users)
+Non-cold-start zero-hit users: 52/748 (6.95% of non-cold-start users)

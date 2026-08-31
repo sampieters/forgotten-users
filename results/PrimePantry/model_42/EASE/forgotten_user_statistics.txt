@@ -1,0 +1,15 @@
+Dataset: PrimePantry
+Model: EASE
+Seed: 42
+
+Forgotten users (non-cold-start): 97/2644 (3.67% of all users)
+
+Cold-start users: 1184/2644 (44.78% of all users)
+Cold-start forgotten: 186/1184 (15.71% of cold-start users)
+
+Non-cold-start users: 1460/2644 (55.22% of all users)
+Non-cold-start forgotten: 97/1460 (6.64% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 1452/2644 (54.92% of all users)
+Cold-start zero-hit users: 480/1184 (40.54% of cold-start users)
+Non-cold-start zero-hit users: 972/1460 (66.58% of non-cold-start users)

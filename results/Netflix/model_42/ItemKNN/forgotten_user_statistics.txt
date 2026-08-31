@@ -1,0 +1,15 @@
+Dataset: Netflix
+Model: ItemKNN
+Seed: 42
+
+Forgotten users (non-cold-start): 1509/10035 (15.04% of all users)
+
+Cold-start users: 2417/10035 (24.09% of all users)
+Cold-start forgotten: 372/2417 (15.39% of cold-start users)
+
+Non-cold-start users: 7618/10035 (75.91% of all users)
+Non-cold-start forgotten: 1509/7618 (19.81% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 825/10035 (8.22% of all users)
+Cold-start zero-hit users: 355/2417 (14.69% of cold-start users)
+Non-cold-start zero-hit users: 470/7618 (6.17% of non-cold-start users)
