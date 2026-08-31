@@ -1,0 +1,5 @@
+# Virtual environments
+.venv/
+
+data/raw/*
+data/processed/*
