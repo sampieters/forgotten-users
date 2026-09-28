@@ -2,6 +2,11 @@
 
 This repository implements the experimental framework used to study “forgotten users” in recommender systems: users who are not in the cold-start regime, but still perform worse under a learned recommender than under a simple popularity baseline. The project is designed to support a reproducible research workflow, from raw data preprocessing to model training, evaluation, and diagnostic visualization.
 
+** Paper: ** materials -> forgotten_users(paper).pdf
+** Poster: ** materials -> forgotten_users(poster).png
+** Presentation Slides: ** materials -> forgotten_users(slides).pdf
+** Code: ** src
+
 ## Research goal
 
 The central question is whether recommender systems systematically forget some users even after those users have accumulated enough history to be considered established. To study this, the codebase builds a controlled evaluation pipeline that compares multiple recommenders against a popularity baseline and quantifies users who are forgotten by the model.
