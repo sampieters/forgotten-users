@@ -8,12 +8,14 @@ evaluation:
 
 datasets:
   #MovieLens1M:
-   # cold_start: 20
-   # preprocessing:
-   #   - type: "MinRating"
-   #     params:
-   #       min_rating: 3
+  #  cold_start: 20
+  #  preprocessing:
+  #    - type: "MinRating"
+  #      params:
+  #        min_rating: 3
   #    - type: "MinItemsPerUser"
+  #      params:
+  #        min_items_per_user: 5
   #      params:
   #        min_items_per_user: 5
   #    - type: "MinUsersPerItem"
@@ -36,10 +38,10 @@ datasets:
   #    - type: "Deduplicate"
 
   #CiteULike:
-   #  cold_start: 10
+  #   cold_start: 10
   #   preprocessing:
   #     - type: "MinItemsPerUser"
-   #      params:
+  #       params:
   #         min_items_per_user: 5
   #     - type: "MinUsersPerItem"
   #       params:
@@ -73,6 +75,10 @@ algorithms:
 
   StrongGenSVD:
     num_components: [20, 50, 100, 150, 200, 250, 300]
+    seed: [42]
+
+  Random:
+    K: [200]
     seed: [42]
 
 

@@ -1,0 +1,19 @@
+Dataset: MovieLens1M
+Model: Random
+Seed: 42
+
+Forgotten users (non-cold-start): 949/1208 (78.56% of all users)
+
+Cold-start users: 132/1208 (10.93% of all users)
+Cold-start forgotten: 105/132 (79.55% of cold-start users)
+
+Non-cold-start users: 1076/1208 (89.07% of all users)
+Non-cold-start forgotten: 949/1076 (88.20% of non-cold-start users)
+
+Users with equal hits for both model and popularity: 115/1208 (9.52% of all users)
+Equal hits for cold-start users: 18/132 (13.64% of cold-start users)
+Equal hits for non-cold-start users: 97/1076 (9.01% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 95/1208 (7.86% of all users)
+Cold-start zero-hit users: 17/132 (12.88% of cold-start users)
+Non-cold-start zero-hit users: 78/1076 (7.25% of non-cold-start users)

@@ -1,0 +1,19 @@
+Dataset: CiteULike
+Model: Random
+Seed: 42
+
+Forgotten users (non-cold-start): 191/1110 (17.21% of all users)
+
+Cold-start users: 362/1110 (32.61% of all users)
+Cold-start forgotten: 42/362 (11.60% of cold-start users)
+
+Non-cold-start users: 748/1110 (67.39% of all users)
+Non-cold-start forgotten: 191/748 (25.53% of non-cold-start users)
+
+Users with equal hits for both model and popularity: 826/1110 (74.41% of all users)
+Equal hits for cold-start users: 306/362 (84.53% of cold-start users)
+Equal hits for non-cold-start users: 520/748 (69.52% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 826/1110 (74.41% of all users)
+Cold-start zero-hit users: 306/362 (84.53% of cold-start users)
+Non-cold-start zero-hit users: 520/748 (69.52% of non-cold-start users)

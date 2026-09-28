@@ -19,6 +19,186 @@ def _result_dir(ds_name: str, model_seed: int, model_name: str) -> Path:
     out.mkdir(parents=True, exist_ok=True)
     return out
 
+def plot_user_ndcg() -> None:
+    """Plot per-user NDCG@K, with users sorted by model NDCG descending."""
+    for ds_name in DATASETS:
+        for model_seed in MODEL_SEEDS:
+            for model_name in ALGORITHM_CONFIGS:
+                if model_name.lower() == "popularity":
+                    continue
+
+                user_ndcg_model = None
+                user_ndcg_pop = None
+
+                for split_id in SPLIT_SEEDS:
+                    model_pred_path = (
+                        Path(CHECKPOINT_DIR)
+                        / ds_name
+                        / f"model_{model_seed}"
+                        / "algorithms"
+                        / model_name
+                        / f"split_{split_id}"
+                        / "predictions.pkl"
+                    )
+
+                    with open(model_pred_path, "rb") as f:
+                        model_pred = pickle.load(f)
+
+                    pop_pred_path = (
+                        Path(CHECKPOINT_DIR)
+                        / ds_name
+                        / f"model_{model_seed}"
+                        / "algorithms"
+                        / "Popularity"
+                        / f"split_{split_id}"
+                        / "predictions.pkl"
+                    )
+
+                    with open(pop_pred_path, "rb") as f:
+                        pop_pred = pickle.load(f)
+
+                    test_path = (
+                        Path(CHECKPOINT_DIR)
+                        / ds_name
+                        / f"model_{model_seed}"
+                        / "data"
+                        / f"split_{split_id}"
+                        / "test_data.pkl"
+                    )
+
+                    with open(test_path, "rb") as f:
+                        test_in = pickle.load(f)
+                        test_out = pickle.load(f)
+
+                    # --------------------------------------------------
+                    # Model NDCG
+                    # --------------------------------------------------
+                    ndcg = NDCGK(K=K)
+                    ndcg.calculate(
+                        test_out.binary_values,
+                        model_pred,
+                    )
+
+                    model_results = (
+                        ndcg.results
+                        .groupby("user_id")["score"]
+                        .mean()
+                    )
+
+                    # --------------------------------------------------
+                    # Popularity NDCG
+                    # --------------------------------------------------
+                    ndcg.calculate(
+                        test_out.binary_values,
+                        pop_pred,
+                    )
+
+                    pop_results = (
+                        ndcg.results
+                        .groupby("user_id")["score"]
+                        .mean()
+                    )
+
+                    # --------------------------------------------------
+                    # Accumulate across splits
+                    # --------------------------------------------------
+                    if user_ndcg_model is None:
+                        user_ndcg_model = model_results.copy()
+                        user_ndcg_pop = pop_results.copy()
+                    else:
+                        user_ndcg_model = (
+                            user_ndcg_model
+                            .add(model_results, fill_value=0)
+                        )
+
+                        user_ndcg_pop = (
+                            user_ndcg_pop
+                            .add(pop_results, fill_value=0)
+                        )
+
+                # Average NDCG across splits
+                user_ndcg_model /= len(SPLIT_SEEDS)
+                user_ndcg_pop /= len(SPLIT_SEEDS)
+
+                # ------------------------------------------------------
+                # Create dataframe
+                # ------------------------------------------------------
+                df = pd.DataFrame(
+                    {
+                        "user_id": user_ndcg_model.index,
+                        "model_ndcg": user_ndcg_model.values,
+                        "pop_ndcg": user_ndcg_pop.reindex(
+                            user_ndcg_model.index
+                        ).values,
+                    }
+                )
+
+                # Sort users by model NDCG, highest -> lowest
+                df = df.sort_values(
+                    "model_ndcg",
+                    ascending=False,
+                ).reset_index(drop=True)
+
+                # User rank on x-axis
+                df["user_rank"] = np.arange(1, len(df) + 1)
+
+                # ------------------------------------------------------
+                # Plot
+                # ------------------------------------------------------
+                fig, ax = plt.subplots(figsize=(10, 5))
+
+                ax.set_title(f"NDCG@{K} per user (descending order)")
+
+                x = df["user_rank"].to_numpy()
+                y = df["model_ndcg"].to_numpy()
+
+                zero_idx = np.where(y == 0)[0]
+
+                if len(zero_idx) > 0:
+                    first_zero = zero_idx[0]
+
+                    # Normal NDCG curve
+                    ax.plot(
+                        x[:first_zero + 1],
+                        y[:first_zero + 1],
+                        linewidth=1.5,
+                        label=model_name,
+                    )
+
+                    # Orange zero-NDCG section
+                    ax.plot(
+                        x[first_zero:],
+                        y[first_zero:],
+                        color="orange",
+                        linewidth=1.5,
+                        label="NDCG = 0",
+                    )
+                else:
+                    ax.plot(
+                        x,
+                        y,
+                        linewidth=1.5,
+                        label=model_name,
+                    )
+
+                ax.set_xlabel("Users (sorted by NDCG)")
+                ax.set_ylabel(f"NDCG@{K}")
+
+                ax.set_ylim(-0.1, 1.1)
+
+                plt.savefig(
+                    _result_dir(
+                        ds_name,
+                        model_seed,
+                        model_name,
+                    ) / "user_ndcg.png",
+                    dpi=300,
+                    bbox_inches="tight",
+                )
+
+                plt.close(fig)
+
+
 # ---------------------------------------------------------------------------
 # Plot generators
 # ---------------------------------------------------------------------------
@@ -126,7 +306,7 @@ def plot_forgotten_users() -> None:
 
                 cold_start_threshold = get_cold_start(ds_name)
                 cold_start_mask = df["history_length"] <= cold_start_threshold
-                worse_mask = df["hit_difference"] < 0
+                worse_mask = (df["hit_difference"] < 0 | ((df["hit_difference"] == 0) & (df["model_hits"] == 0) & (df["pop_hits"] == 0)))
                 cold_normal_mask = cold_start_mask & ~worse_mask
                 forgotten_mask = (~cold_start_mask) & worse_mask
                 normal_mask = (~cold_start_mask) & ~worse_mask
@@ -137,7 +317,7 @@ def plot_forgotten_users() -> None:
                     ax.scatter(
                         df.loc[cold_start_mask, "history_length"],
                         df.loc[cold_start_mask, "hit_difference"],
-                        color="grey", marker="s", edgecolors="none", alpha=0.7, s=12,
+                        color="gray", marker="s", edgecolors="none", alpha=0.7, s=12,
                         label=f"Cold-start users (n={cold_start_mask.sum()})",
                     )
 
@@ -145,7 +325,7 @@ def plot_forgotten_users() -> None:
                     ax.scatter(
                         df.loc[normal_mask, "history_length"],
                         df.loc[normal_mask, "hit_difference"],
-                        color="grey", marker="o", edgecolors="none", alpha=0.7, s=12,
+                        color="gray", marker="o", edgecolors="none", alpha=0.7, s=12,
                         label=f"Regular users (n={normal_mask.sum()})",
                     )
 
@@ -153,7 +333,9 @@ def plot_forgotten_users() -> None:
                     ax.scatter(
                         df.loc[forgotten_mask, "history_length"],
                         df.loc[forgotten_mask, "hit_difference"],
-                        color="orange", marker="o", edgecolors="none", alpha=0.7, s=12,
+                        #color="orange", 
+                        color=(255/255, 100/255, 0/255),
+                        marker="o", edgecolors="none", alpha=0.7, s=12,
                         label=f"Forgotten users (n={forgotten_mask.sum()})",
                     )
 
@@ -169,12 +351,23 @@ def plot_forgotten_users() -> None:
                 ax.set_ylabel("Hit Difference")
                 ax.legend(loc="upper right")
 
+                #plt.savefig(
+                #    _result_dir(ds_name, model_seed, model_name) / "forgotten_users.png",
+                #    dpi=300,
+                #    bbox_inches="tight",
+                #)
+
                 plt.savefig(
-                    _result_dir(ds_name, model_seed, model_name) / "forgotten_users.png",
-                    dpi=300,
+                    _result_dir(ds_name, model_seed, model_name) / "forgotten_users.svg",
+                    format="svg",
+                    transparent=True,
                     bbox_inches="tight",
                 )
                 plt.close(fig)
+
+
+
+                
 
 
 def plot_umap_forgotten_users() -> None:
@@ -318,7 +511,7 @@ def plot_umap_forgotten_users() -> None:
                     ax.scatter(
                         embedding[normal_mask, 0],
                         embedding[normal_mask, 1],
-                        color="grey",
+                        color="gray",
                         s=12,
                         marker="o",
                         alpha=0.7,
@@ -330,7 +523,7 @@ def plot_umap_forgotten_users() -> None:
                     ax.scatter(
                         embedding[forgotten_mask, 0],
                         embedding[forgotten_mask, 1],
-                        color="orange",
+                        color=(255/255, 100/255, 0/255),
                         s=20,
                         marker="o",
                         alpha=0.7,
@@ -349,10 +542,17 @@ def plot_umap_forgotten_users() -> None:
                 ax.legend(loc="upper right", fontsize=8, frameon=True)
                 plt.tight_layout()
 
+                #plt.savefig(
+                #    _result_dir(ds_name, model_seed, model_name)
+                #    / "forgotten_users_umap.png",
+                #    dpi=300,
+                #    bbox_inches="tight",
+                #)
+
                 plt.savefig(
-                    _result_dir(ds_name, model_seed, model_name)
-                    / "forgotten_users_umap.png",
-                    dpi=300,
+                    _result_dir(ds_name, model_seed, model_name) / "forgotten_users_umap.svg",
+                    format="svg",
+                    transparent=True,
                     bbox_inches="tight",
                 )
 
@@ -477,6 +677,10 @@ def write_forgotten_users_statistics() -> None:
                     < df["pop_hits"].values
                 )
 
+                # Get the users where both the model and popularity fail equally
+                
+                equal_hits_mask = (df["model_hits"].values - df["pop_hits"].values == 0)
+
                 # Split cold-start / non-cold-start
                 cold_mask = (
                     df["history_length"].values
@@ -490,10 +694,11 @@ def write_forgotten_users_statistics() -> None:
                     & cold_mask
                 )
 
-                non_cold_forgotten = (
-                    pop_forgotten_mask
-                    & non_cold_mask
-                )
+                non_cold_forgotten = (pop_forgotten_mask & non_cold_mask)
+
+                cold_equal_forgotten = (equal_hits_mask & cold_mask)
+
+                non_cold_equal_forgotten = (equal_hits_mask & non_cold_mask)
 
                 # \UserDefinition{} excludes cold-start users
                 forgotten_mask = non_cold_forgotten
@@ -540,6 +745,11 @@ def write_forgotten_users_statistics() -> None:
                     else 0.0
                 )
 
+                # Users where both the model and popularity fail equally
+                n_equal_both = equal_hits_mask.sum()
+                n_equal_both_cold = cold_equal_forgotten.sum()
+                n_equal_both_non_cold = non_cold_equal_forgotten.sum()
+            
                 # Users where both the model and popularity fail completely
                 zero_both_mask = (
                     (df["model_hits"].values == 0)
@@ -569,6 +779,24 @@ def write_forgotten_users_statistics() -> None:
                     100 * n_zero_both_non_cold / n_non_cold
                     if n_non_cold > 0
                     else 0.0
+                )
+
+                pct_equal_both = (
+                    100 * n_equal_both / n_users
+                    if n_users > 0
+                    else 0.0  
+                )
+
+                pct_equal_both_cold = (
+                    100 * n_equal_both_cold / n_cold
+                    if n_cold > 0
+                    else 0.0   
+                )
+
+                pct_equal_both_non_cold = (
+                    100 * n_equal_both_non_cold / n_non_cold
+                    if n_non_cold > 0
+                    else 0.0   
                 )
 
                 # Write results
@@ -610,6 +838,26 @@ def write_forgotten_users_statistics() -> None:
                         f"Non-cold-start forgotten: "
                         f"{n_non_cold_forgotten}/{n_non_cold} "
                         f"({pct_non_cold_forgotten:.2f}% of non-cold-start users)\n"
+                    )
+
+                    f.write("\n")
+
+                    f.write(
+                        f"Users with equal hits for both model and popularity: "
+                        f"{n_equal_both}/{n_users} "
+                        f"({pct_equal_both:.2f}% of all users)\n"
+                    )
+
+                    f.write(
+                        f"Equal hits for cold-start users: "
+                        f"{n_equal_both_cold}/{n_cold} "
+                        f"({pct_equal_both_cold:.2f}% of cold-start users)\n"
+                    )
+
+                    f.write(
+                        f"Equal hits for non-cold-start users: "
+                        f"{n_equal_both_non_cold}/{n_non_cold} "
+                        f"({pct_equal_both_non_cold:.2f}% of non-cold-start users)\n"
                     )
 
                     f.write("\n")

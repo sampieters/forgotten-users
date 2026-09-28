@@ -31,6 +31,7 @@ from recpack.matrix import InteractionMatrix
 from recpack.metrics import HitK, NDCGK
 
 from plots import (
+    plot_user_ndcg,
     plot_forgotten_users, 
     plot_umap_forgotten_users,
     write_forgotten_users_statistics, 
@@ -167,8 +168,9 @@ def run_experiment() -> None:
 
 if __name__ == "__main__":
     #run_experiment()
-    plot_forgotten_users()
+    #plot_user_ndcg()
+    #plot_forgotten_users()
     plot_umap_forgotten_users()
-    write_forgotten_users_statistics()
-    plot_candidate_pooling_forgotten_users()
+    #write_forgotten_users_statistics()
+    #plot_candidate_pooling_forgotten_users()
 

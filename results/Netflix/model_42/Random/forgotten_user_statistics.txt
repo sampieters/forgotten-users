@@ -1,0 +1,19 @@
+Dataset: Netflix
+Model: Random
+Seed: 42
+
+Forgotten users (non-cold-start): 6153/10035 (61.32% of all users)
+
+Cold-start users: 2417/10035 (24.09% of all users)
+Cold-start forgotten: 1082/2417 (44.77% of cold-start users)
+
+Non-cold-start users: 7618/10035 (75.91% of all users)
+Non-cold-start forgotten: 6153/7618 (80.77% of non-cold-start users)
+
+Users with equal hits for both model and popularity: 2624/10035 (26.15% of all users)
+Equal hits for cold-start users: 1239/2417 (51.26% of cold-start users)
+Equal hits for non-cold-start users: 1385/7618 (18.18% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 2583/10035 (25.74% of all users)
+Cold-start zero-hit users: 1238/2417 (51.22% of cold-start users)
+Non-cold-start zero-hit users: 1345/7618 (17.66% of non-cold-start users)

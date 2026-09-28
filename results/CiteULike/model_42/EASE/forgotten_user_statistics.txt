@@ -10,6 +10,10 @@ Cold-start forgotten: 10/362 (2.76% of cold-start users)
 Non-cold-start users: 748/1110 (67.39% of all users)
 Non-cold-start forgotten: 23/748 (3.07% of non-cold-start users)
 
+Users with equal hits for both model and popularity: 46/1110 (4.14% of all users)
+Equal hits for cold-start users: 26/362 (7.18% of cold-start users)
+Equal hits for non-cold-start users: 20/748 (2.67% of non-cold-start users)
+
 Users with zero hits for both model and popularity: 46/1110 (4.14% of all users)
 Cold-start zero-hit users: 26/362 (7.18% of cold-start users)
 Non-cold-start zero-hit users: 20/748 (2.67% of non-cold-start users)

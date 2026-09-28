@@ -1,0 +1,19 @@
+Dataset: PrimePantry
+Model: Random
+Seed: 42
+
+Forgotten users (non-cold-start): 220/2644 (8.32% of all users)
+
+Cold-start users: 1184/2644 (44.78% of all users)
+Cold-start forgotten: 221/1184 (18.67% of cold-start users)
+
+Non-cold-start users: 1460/2644 (55.22% of all users)
+Non-cold-start forgotten: 220/1460 (15.07% of non-cold-start users)
+
+Users with equal hits for both model and popularity: 1972/2644 (74.58% of all users)
+Equal hits for cold-start users: 796/1184 (67.23% of cold-start users)
+Equal hits for non-cold-start users: 1176/1460 (80.55% of non-cold-start users)
+
+Users with zero hits for both model and popularity: 1970/2644 (74.51% of all users)
+Cold-start zero-hit users: 796/1184 (67.23% of cold-start users)
+Non-cold-start zero-hit users: 1174/1460 (80.41% of non-cold-start users)
